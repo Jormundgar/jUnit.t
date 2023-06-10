@@ -3,9 +3,13 @@ package com.volkov.junit.service;
 import com.volkov.junit.dto.User;
 import org.junit.jupiter.api.*;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
+    private static final User MIKE = User.of(1, "Mike", "qwerty");
+    private static final User LIOR = User.of(2, "Lior", "1234");
     private UserService userService;
     @BeforeAll
     static void init() {
@@ -25,10 +29,29 @@ class UserServiceTest {
     @Test
     void usersSizeIfUserAdded() {
         System.out.println("Test 2 " + this);
-        userService.add(new User());
-        userService.add(new User());
+        userService.add(MIKE);
+        userService.add(LIOR);
         var users = userService.getAll();
         assertEquals(2, users.size());
+    }
+    @Test
+    void loginSuccessIfUserExists() {
+        userService.add(MIKE);
+        var maybeUser = userService.login(MIKE.getUsername(), MIKE.getPassword());
+        assertTrue(maybeUser.isPresent());
+        maybeUser.ifPresent(user -> assertEquals(MIKE, user));
+    }
+    @Test
+    void loginFailIfPasswordIsNotCorrect() {
+        userService.add(MIKE);
+        var maybeUser = userService.login(MIKE.getUsername(), "Dummy");
+        assertTrue(maybeUser.isEmpty());
+    }
+    @Test
+    void loginFailIfUserDoesNotExist() {
+        userService.add(MIKE);
+        var maybeUser = userService.login("Dummy", MIKE.getPassword());
+        assertTrue(maybeUser.isEmpty());
     }
     @AfterEach
     void deleteDataFromDataBase() {
