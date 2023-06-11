@@ -4,6 +4,12 @@ import com.volkov.junit.dto.User;
 import com.volkov.junit.paramresolver.UserServiceParamResolver;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -95,6 +101,22 @@ class UserServiceTest {
             userService.add(MIKE);
             var maybeUser = userService.login("Dummy", MIKE.getPassword());
             assertTrue(maybeUser.isEmpty());
+        }
+        @ParameterizedTest(name = "{displayName} {index}")
+        @MethodSource("getArgumentsForLoginTest")
+        @DisplayName("Login Param Test")
+        void loginParameterizingTest(String username, String password, Optional<User> user) {
+            userService.add(MIKE, LIOR);
+            var maybeUser = userService.login(username, password);
+            assertThat(maybeUser).isEqualTo(user);
+        }
+        static Stream<Arguments> getArgumentsForLoginTest() {
+            return Stream.of(
+                    Arguments.of("Mike", "qwerty", Optional.of(MIKE)),
+                    Arguments.of("Lior", "1234", Optional.of(LIOR)),
+                    Arguments.of("Mike", "Dummy", Optional.empty()),
+                    Arguments.of("Dummy", "1234", Optional.empty())
+            );
         }
     }
 }
