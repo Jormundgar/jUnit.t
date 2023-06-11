@@ -3,9 +3,7 @@ package com.volkov.junit.service;
 import com.volkov.junit.dto.User;
 import org.junit.jupiter.api.*;
 
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
@@ -49,6 +47,22 @@ class UserServiceTest {
         var maybeUser = userService.login(MIKE.getUsername(), MIKE.getPassword());
         assertThat(maybeUser).isPresent();
         maybeUser.ifPresent(user -> assertThat(user).isEqualTo(MIKE));
+    }
+
+    @Test
+    void throwExceptionIfUsernameOrPasswordIsNull() {
+        assertAll(
+                () -> {
+                    var exception = assertThrows(IllegalArgumentException.class,
+                            () -> userService.login(null, "Dummy"));
+                    assertThat(exception.getMessage()).isEqualTo("Username or Password is null");
+                },
+                () -> {
+                    var exception = assertThrows(IllegalArgumentException.class,
+                            () -> userService.login("Dummy", null));
+                    assertThat(exception.getMessage()).isEqualTo("Username or Password is null");
+                }
+        );
     }
     @Test
     void loginFailIfPasswordIsNotCorrect() {
