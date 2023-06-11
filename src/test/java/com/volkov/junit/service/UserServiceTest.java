@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("user")
 class UserServiceTest {
     private static final User MIKE = User.of(1, "Mike", "qwerty");
     private static final User LIOR = User.of(2, "Lior", "1234");
@@ -41,41 +42,6 @@ class UserServiceTest {
                 () -> assertThat(users).containsValues(MIKE, LIOR)
         );
     }
-    @Test
-    void loginSuccessIfUserExists() {
-        userService.add(MIKE);
-        var maybeUser = userService.login(MIKE.getUsername(), MIKE.getPassword());
-        assertThat(maybeUser).isPresent();
-        maybeUser.ifPresent(user -> assertThat(user).isEqualTo(MIKE));
-    }
-
-    @Test
-    void throwExceptionIfUsernameOrPasswordIsNull() {
-        assertAll(
-                () -> {
-                    var exception = assertThrows(IllegalArgumentException.class,
-                            () -> userService.login(null, "Dummy"));
-                    assertThat(exception.getMessage()).isEqualTo("Username or Password is null");
-                },
-                () -> {
-                    var exception = assertThrows(IllegalArgumentException.class,
-                            () -> userService.login("Dummy", null));
-                    assertThat(exception.getMessage()).isEqualTo("Username or Password is null");
-                }
-        );
-    }
-    @Test
-    void loginFailIfPasswordIsNotCorrect() {
-        userService.add(MIKE);
-        var maybeUser = userService.login(MIKE.getUsername(), "Dummy");
-        assertTrue(maybeUser.isEmpty());
-    }
-    @Test
-    void loginFailIfUserDoesNotExist() {
-        userService.add(MIKE);
-        var maybeUser = userService.login("Dummy", MIKE.getPassword());
-        assertTrue(maybeUser.isEmpty());
-    }
     @AfterEach
     void deleteDataFromDataBase() {
         System.out.println("After each " + this);
@@ -84,5 +50,43 @@ class UserServiceTest {
     static void closeConnectionPool() {
         System.out.println("After all ");
     }
-
+    @Nested
+    @DisplayName("Test user login functionality")
+    @Tag("login")
+    class LoginTest {
+        @Test
+        void loginSuccessIfUserExists() {
+            userService.add(MIKE);
+            var maybeUser = userService.login(MIKE.getUsername(), MIKE.getPassword());
+            assertThat(maybeUser).isPresent();
+            maybeUser.ifPresent(user -> assertThat(user).isEqualTo(MIKE));
+        }
+        @Test
+        void throwExceptionIfUsernameOrPasswordIsNull() {
+            assertAll(
+                    () -> {
+                        var exception = assertThrows(IllegalArgumentException.class,
+                                () -> userService.login(null, "Dummy"));
+                        assertThat(exception.getMessage()).isEqualTo("Username or Password is null");
+                    },
+                    () -> {
+                        var exception = assertThrows(IllegalArgumentException.class,
+                                () -> userService.login("Dummy", null));
+                        assertThat(exception.getMessage()).isEqualTo("Username or Password is null");
+                    }
+            );
+        }
+        @Test
+        void loginFailIfPasswordIsNotCorrect() {
+            userService.add(MIKE);
+            var maybeUser = userService.login(MIKE.getUsername(), "Dummy");
+            assertTrue(maybeUser.isEmpty());
+        }
+        @Test
+        void loginFailIfUserDoesNotExist() {
+            userService.add(MIKE);
+            var maybeUser = userService.login("Dummy", MIKE.getPassword());
+            assertTrue(maybeUser.isEmpty());
+        }
+    }
 }
