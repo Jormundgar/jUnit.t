@@ -1,7 +1,7 @@
 package com.volkov.junit.service;
 
 import com.volkov.junit.dto.User;
-import com.volkov.junit.paramresolver.UserServiceParamResolver;
+import com.volkov.junit.extension.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,7 +17,11 @@ import static org.junit.jupiter.api.RepeatedTest.LONG_DISPLAY_NAME;
 
 @Tag("user")
 @ExtendWith({
-        UserServiceParamResolver.class
+        UserServiceParamResolver.class,
+        GlobalExtension.class,
+        PostProcessingExtension.class,
+        ConditionalExtension.class,
+        ThrowableExtension.class
 })
 class UserServiceTest {
     private static final User MIKE = User.of(1, "Mike", "qwerty");

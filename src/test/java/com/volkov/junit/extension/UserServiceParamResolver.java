@@ -1,4 +1,4 @@
-package com.volkov.junit.paramresolver;
+package com.volkov.junit.extension;
 
 import com.volkov.junit.service.UserService;
 import org.junit.jupiter.api.extension.ExtensionContext;
