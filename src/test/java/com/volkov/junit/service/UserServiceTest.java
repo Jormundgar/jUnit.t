@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.RepeatedTest.LONG_DISPLAY_NAME;
 
 @Tag("user")
 @ExtendWith({
@@ -35,12 +36,14 @@ class UserServiceTest {
         this.userService = userService;
     }
     @Test
+    @Disabled("Test this option")
     void usersEmptyIfNoUserAdded() {
         System.out.println("Test 1 " + this);
         var users = userService.getAll();
         assertTrue(users.isEmpty(), "User list should be empty");
     }
     @Test
+    @RepeatedTest(value = 5, name = LONG_DISPLAY_NAME)
     void usersSizeIfUserAdded() {
         System.out.println("Test 2 " + this);
         userService.add(MIKE, LIOR);
