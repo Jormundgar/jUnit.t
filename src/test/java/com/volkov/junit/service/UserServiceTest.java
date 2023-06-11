@@ -1,24 +1,32 @@
 package com.volkov.junit.service;
 
 import com.volkov.junit.dto.User;
+import com.volkov.junit.paramresolver.UserServiceParamResolver;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("user")
+@ExtendWith({
+        UserServiceParamResolver.class
+})
 class UserServiceTest {
     private static final User MIKE = User.of(1, "Mike", "qwerty");
     private static final User LIOR = User.of(2, "Lior", "1234");
     private UserService userService;
+    UserServiceTest(TestInfo testInfo) {
+        System.out.println();
+    }
     @BeforeAll
     static void init() {
         System.out.println("Before all ");
     }
     @BeforeEach
-    void prepare() {
+    void prepare(UserService userService) {
         System.out.println("Before each " + this);
-        userService = new UserService();
+        this.userService = userService;
     }
     @Test
     void usersEmptyIfNoUserAdded() {
