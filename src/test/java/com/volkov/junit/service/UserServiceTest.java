@@ -3,8 +3,9 @@ package com.volkov.junit.service;
 import com.volkov.junit.dto.User;
 import org.junit.jupiter.api.*;
 
-import java.util.Optional;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
@@ -29,17 +30,25 @@ class UserServiceTest {
     @Test
     void usersSizeIfUserAdded() {
         System.out.println("Test 2 " + this);
-        userService.add(MIKE);
-        userService.add(LIOR);
+        userService.add(MIKE, LIOR);
         var users = userService.getAll();
-        assertEquals(2, users.size());
+        assertThat(users).hasSize(2);
+    }
+    @Test
+    void usersConvertedToMapById() {
+        userService.add(MIKE, LIOR);
+        var users = userService.getAllConvertedById();
+        assertAll(
+                () -> assertThat(users).containsKeys(MIKE.getId(), LIOR.getId()),
+                () -> assertThat(users).containsValues(MIKE, LIOR)
+        );
     }
     @Test
     void loginSuccessIfUserExists() {
         userService.add(MIKE);
         var maybeUser = userService.login(MIKE.getUsername(), MIKE.getPassword());
-        assertTrue(maybeUser.isPresent());
-        maybeUser.ifPresent(user -> assertEquals(MIKE, user));
+        assertThat(maybeUser).isPresent();
+        maybeUser.ifPresent(user -> assertThat(user).isEqualTo(MIKE));
     }
     @Test
     void loginFailIfPasswordIsNotCorrect() {
