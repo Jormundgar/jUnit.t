@@ -1,5 +1,6 @@
 package com.volkov.junit.service;
 
+import com.volkov.junit.dao.UserDAO;
 import com.volkov.junit.dto.User;
 import com.volkov.junit.extension.*;
 import org.junit.jupiter.api.*;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -21,12 +23,13 @@ import static org.junit.jupiter.api.RepeatedTest.LONG_DISPLAY_NAME;
         GlobalExtension.class,
         PostProcessingExtension.class,
         ConditionalExtension.class,
-        ThrowableExtension.class
+//        ThrowableExtension.class
 })
 class UserServiceTest {
     private static final User MIKE = User.of(1, "Mike", "qwerty");
     private static final User LIOR = User.of(2, "Lior", "1234");
     private UserService userService;
+    private UserDAO userDAO;
     UserServiceTest(TestInfo testInfo) {
         System.out.println();
     }
@@ -35,9 +38,17 @@ class UserServiceTest {
         System.out.println("Before all ");
     }
     @BeforeEach
-    void prepare(UserService userService) {
+    void prepare() {
         System.out.println("Before each " + this);
-        this.userService = userService;
+        this.userDAO = Mockito.mock(UserDAO.class);
+        this.userService = new UserService(userDAO);
+    }
+    @Test
+    void shouldDeleteExistedUser() {
+        userService.add(LIOR);
+        Mockito.doReturn(true).when(userDAO).delete(LIOR.getId());
+        var deleteResult = userService.delete(LIOR.getId());
+        assertThat(deleteResult).isTrue();
     }
     @Test
     @Disabled("Test this option")

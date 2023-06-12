@@ -1,10 +1,9 @@
 package com.volkov.junit.service;
 
+import com.volkov.junit.dao.UserDAO;
 import com.volkov.junit.dto.User;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
@@ -12,6 +11,15 @@ import static java.util.stream.Collectors.toMap;
 public class UserService {
 
     private final List<User> users = new ArrayList<>();
+    private final UserDAO userDAO;
+
+    public UserService(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
+
+    public boolean delete(Integer userId) {
+        return userDAO.delete(userId);
+    }
 
     public List<User> getAll() {
         return users;
