@@ -8,7 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.RepeatedTest.LONG_DISPLAY_NAME;
+import static org.mockito.Mockito.*;
 
 @Tag("user")
 @ExtendWith({
@@ -23,13 +25,18 @@ import static org.junit.jupiter.api.RepeatedTest.LONG_DISPLAY_NAME;
         GlobalExtension.class,
         PostProcessingExtension.class,
         ConditionalExtension.class,
+        MockitoExtension.class
 //        ThrowableExtension.class
 })
 class UserServiceTest {
     private static final User MIKE = User.of(1, "Mike", "qwerty");
     private static final User LIOR = User.of(2, "Lior", "1234");
-    private UserService userService;
+    @Captor
+    private ArgumentCaptor<Integer> argumentCaptor;
+    @Mock
     private UserDAO userDAO;
+    @InjectMocks
+    private UserService userService;
     UserServiceTest(TestInfo testInfo) {
         System.out.println();
     }
@@ -40,14 +47,17 @@ class UserServiceTest {
     @BeforeEach
     void prepare() {
         System.out.println("Before each " + this);
-        this.userDAO = Mockito.mock(UserDAO.class);
-        this.userService = new UserService(userDAO);
+//        this.userDAO = Mockito.spy(new UserDAO());
+//        this.userService = new UserService(userDAO);
     }
     @Test
     void shouldDeleteExistedUser() {
         userService.add(LIOR);
-        Mockito.doReturn(true).when(userDAO).delete(LIOR.getId());
+        doReturn(true).when(userDAO).delete(LIOR.getId());
         var deleteResult = userService.delete(LIOR.getId());
+//        var argumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(userDAO, times(1)).delete(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).isEqualTo(LIOR.getId());
         assertThat(deleteResult).isTrue();
     }
     @Test
